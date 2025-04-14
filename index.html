@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>\
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+    <div class="Overlay">
+    <div class="Box" id = "overlay">
+        <h2>Hey honey 💓💓 i have a message for you!!</h2>
+        <button id="showEggBtn">Find out!</button>
+    </div>
+    <img id="eggImage" class="hidden" src="Images/Eggy.png" alt="Egg image"/>
+    <img id="eggTop" class="hidden" src="Images/Eggy-top.png" alt="Egg top"/>
+    <img id="eggBottom" class="hidden" src="Images/Eggy-bottom.png" alt="Egg bottom"/>
+    <img id="slidingObject" class="hidden" src="Images/Bunny.png" alt="Sliding object"/>
+    <img id="slidingObjectLeft" class="hidden" src="Images/Bunny.png" alt="Left sliding object"/>
+    <img id="slidingObjectRight" class="hidden" src="Images/Bunny.png" alt="Right sliding object"/>
+    </div>
+    <script>
+        let isShuffling = true;
+
+        function getRandomDirection() {
+            const directions = ['top', 'bottom', 'left', 'right'];
+            return directions[Math.floor(Math.random() * directions.length)];
+        }
+
+        function runAway(bunny) {
+            const direction = getRandomDirection();
+            let transform = '';
+            
+            switch(direction) {
+                case 'top':
+                    transform = 'translate(-50%, -10000%)';
+                    break;
+                case 'bottom':
+                    transform = 'translate(-50%, 10000%)';
+                    break;
+                case 'left':
+                    transform = 'translate(-10000%, -50%)';
+                    break;
+                case 'right':
+                    transform = 'translate(10000%, -50%)';
+                    break;
+            }
+            
+            bunny.style.transform = transform;
+            bunny.style.transition = 'transform 2s ease-out';
+        }
+
+        function shuffleBunnies() {
+            const positions = [35, 49, 65];
+            
+            // Stolen from internet, some shuffling algo
+            for (let i = positions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [positions[i], positions[j]] = [positions[j], positions[i]];
+            }
+            
+            return {
+                left: positions[0],
+                center: positions[1],
+                right: positions[2]
+            };
+        }
+
+        function moveBunniesToPositions(positions) {
+            const slidingObject = document.getElementById('slidingObject');
+            const slidingObjectLeft = document.getElementById('slidingObjectLeft');
+            const slidingObjectRight = document.getElementById('slidingObjectRight');
+            
+            slidingObject.style.left = positions.center + '%';
+            slidingObjectLeft.style.left = positions.left + '%';
+            slidingObjectRight.style.left = positions.right + '%';
+        }
+
+        document.getElementById('showEggBtn').addEventListener('click', function() {
+            const eggImage = document.getElementById('eggImage');
+            const slidingObject = document.getElementById('slidingObject');
+            const slidingObjectLeft = document.getElementById('slidingObjectLeft');
+            const slidingObjectRight = document.getElementById('slidingObjectRight');
+            const box = document.getElementById('overlay');
+            const showEggBtn = document.getElementById('showEggBtn');
+            
+            eggImage.classList.remove('hidden');
+            box.classList.add('hidden');
+            showEggBtn.classList.add('hidden');
+            
+            setTimeout(() => {
+
+                slidingObject.classList.remove('hidden');
+                slidingObject.style.left = '49%';
+                slidingObject.classList.add('slide-in');
+                
+                slidingObjectLeft.classList.remove('hidden');
+                slidingObjectLeft.style.left = '35%';
+                slidingObjectLeft.classList.add('slide-in-left');
+                
+                slidingObjectRight.classList.remove('hidden');
+                slidingObjectRight.style.left = '65%';
+                slidingObjectRight.classList.add('slide-in-right');
+                
+                let slideCount = 0;
+                const maxSlides = 2;
+                
+                function performNextSlide() {
+                    if (slideCount < maxSlides) {
+                        isShuffling = true;
+                        const positions = shuffleBunnies();
+                        setTimeout(() => {
+                            moveBunniesToPositions(positions);
+                            slideCount++;
+                            if (slideCount === maxSlides) {
+                                isShuffling = false;
+                            }
+                            performNextSlide();
+                        }, 2000);
+                    } else {
+                        const currentLeft = parseFloat(slidingObject.style.left);
+                        eggImage.style.left = (currentLeft + 1) + '%';
+                    }
+                }
+                
+                setTimeout(() => {
+                    performNextSlide();
+                }, 1000);
+            }, 300);
+
+            setTimeout(() => {
+                eggImage.classList.add('hidden');
+            }, 3000);
+        });
+
+        document.getElementById('eggImage').addEventListener('click', function() {
+            if (isShuffling) return;
+            
+            const eggImage = document.getElementById('eggImage');
+            const eggTop = document.getElementById('eggTop');
+            const eggBottom = document.getElementById('eggBottom');
+            const box = document.getElementById('overlay');
+            
+            eggImage.classList.add('hidden');
+            
+            const currentLeft = parseFloat(eggImage.style.left);
+            const currenttop = parseFloat(eggImage.style.top);
+            eggTop.style.left = currentLeft + '%';
+             
+            eggBottom.style.left = currentLeft + '%';
+            eggBottom.style.top = currenttop + 100 + '%'
+            
+            eggTop.classList.remove('hidden');
+            eggBottom.classList.remove('hidden');
+            
+
+            setTimeout(() => {
+                eggTop.style.transform = 'translateY(-100%)';
+                eggBottom.style.transform = 'translateY(100%)';
+                
+
+                setTimeout(() => {
+
+                    const slidingObject = document.getElementById('slidingObject');
+                    const slidingObjectLeft = document.getElementById('slidingObjectLeft');
+                    const slidingObjectRight = document.getElementById('slidingObjectRight');
+
+                    eggTop.classList.add('hidden');
+                    eggBottom.classList.add('hidden');
+                    slidingObject.classList.add('hidden');
+                    slidingObjectLeft.classList.add('hidden');
+                    slidingObjectRight.classList.add('hidden');
+
+                    box.querySelector('h2').textContent = 'Will you be my egg for easter? ';
+                    const yesButton = document.createElement('button');
+                    yesButton.id = 'yesButton';
+                    yesButton.textContent = 'Yes!';
+                    yesButton.style.marginTop = '10px';
+                    box.appendChild(yesButton);
+                    box.classList.remove('hidden');
+
+                    yesButton.addEventListener('click', function() {
+                        box.querySelector('h2').textContent = 'Yayyyy ill be your egg for easter too 💓💓';
+                        yesButton.remove();
+                    });
+                }, 5000);
+            }, 100);
+        });
+
+        // Bunny clicks
+        document.getElementById('slidingObject').addEventListener('click', function() {
+            if (isShuffling) return;
+            
+            const eggImage = document.getElementById('eggImage');
+            const slidingObject = document.getElementById('slidingObject');
+            const slidingObjectLeft = document.getElementById('slidingObjectLeft');
+            const slidingObjectRight = document.getElementById('slidingObjectRight');
+            
+
+            slidingObject.style.transform = 'translateY(-150%)';
+            slidingObject.style.transition = 'transform 1s ease-out';
+            
+
+            eggImage.classList.remove('hidden');
+            
+
+            runAway(slidingObjectLeft);
+            runAway(slidingObjectRight);
+        });
+
+        document.getElementById('slidingObjectLeft').addEventListener('click', function() {
+            if (isShuffling) return;
+            location.reload();
+        });
+
+        document.getElementById('slidingObjectRight').addEventListener('click', function() {
+            if (isShuffling) return;
+            location.reload();
+        });
+    </script>
+</body>
+</html>
